@@ -61,7 +61,7 @@ app.disable('x-powered-by');
 
 const PORT = process.env.PORT ?? 3000;
 const BASE_URL = `http://localhost:${PORT}`;
-const API_AI = 'http://alberto/recommendations';
+const API_AI = 'http://localhost:5000/predict';
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'API running' });
@@ -86,7 +86,7 @@ async function getRecommendations (id) {
   const encodedSessio = encodeURIComponent(sessio);
 
   try {
-    const response = await axios.get(`${API_AI}/${encodedTramit}/${encodedSessio}`);
+    const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
     for (let i = 0; i < response.data.length; ++i) {
       if (response.data[i].vigent) return response.data;
     }
