@@ -107,6 +107,7 @@ fs.createReadStream(accionsPath)
     console.error('Error reading the accions file:' + err);
   });
 
+<<<<<<< Updated upstream
 app.get('/recommendations/*', async (req, res) => {
   const title = req.url.split('/')[2];
   const tramit = tramits.get(title);
@@ -127,5 +128,45 @@ app.get('/recommendations/*', async (req, res) => {
     res.json(recommendations);
   } catch (err) {
     res.status(500).json({ error: err.message });
+=======
+const app = express();
+
+app.disable('x-powered-by');
+
+const PORT = process.env.PORT ?? 3000;
+const BASE_URL = `http://localhost:${PORT}`;
+const API_AI = 'http://localhost:5000/predicts';
+
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'API running' });
+});
+
+/**
+ * Fetches recommendations based on the provided ID.
+ *
+ * This function retrieves the 'Tramit' and 'Sessio' values associated with the given ID,
+ * encodes them, and makes a request to an external API to get recommendations. If the
+ * recommendations contain a valid entry, it returns the data. Otherwise, it recursively
+ * fetches recommendations based on the last entry's ID.
+ *
+ * @param {string} id - The ID used to fetch 'Tramit' and 'Sessio' values.
+ * @returns {Promise<Object[]>} - A promise that resolves to an array of recommendation objects.
+ * @throws {Error} - Throws an error if the request to the external API fails.
+ */
+async function getRecommendations (id) {
+  const tramit = accions.get(id).Tramit;
+  const sessio = accions.get(id).Sessio;
+  const encodedTramit = encodeURIComponent(tramit);
+  const encodedSessio = encodeURIComponent(sessio);
+
+  try {
+    const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
+    for (let i = 0; i < response.data.length; ++i) {
+      if (response.data[i].vigent) return response.data;
+    }
+    return await getRecommendations(response.data[response.data.length - 1].id);
+  } catch (error) {
+    throw new Error('Error fetching recommendations: ' + error.message);
+>>>>>>> Stashed changes
   }
 });
