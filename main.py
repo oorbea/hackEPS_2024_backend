@@ -14,7 +14,7 @@ accions = accions.sort_values(by=['Sessio', 'Data'])
 sequences = accions.groupby('Sessio')['Tramit'].apply(list).reset_index()
 sequences.columns = ['Sessio', 'Sequence']
 
-
+print("holiwis")
 # Generate training pairs
 pairs = []
 
