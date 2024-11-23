@@ -88,7 +88,7 @@ async function getRecommendations (id) {
   try {
     const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
     for (let i = 0; i < response.data.length; ++i) {
-      if (response.data[i].vigent) return response.data.slice(0, 2);
+      if (response.data[i].Vigent) return response.data.slice(0, 2);
     }
     return await getRecommendations(response.data[response.data.length - 1].id);
   } catch (error) {
