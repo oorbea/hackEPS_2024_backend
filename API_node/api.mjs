@@ -27,19 +27,11 @@ fs.createReadStream(tramitsPath)
     tramits.set(row.Titol, tramit);
   })
   .on('end', () => {
-    console.log('CSV file read.');
+    console.log('tramits CSV file read.');
   })
   .on('error', (err) => {
     console.error('Error reading the file:' + err);
   });
-
-// fs.createReadStream(accionsPath)
-//   .pipe(csv())
-//   .on('data', (row) => {
-//     accioColumns.forEach((column) => {
-//       if (row[column] === )
-//     })
-//   });
 
 const app = express();
 
@@ -101,7 +93,7 @@ fs.createReadStream(accionsPath)
   })
   .on('end', () => {
     console.log('Accions CSV file read.');
-    console.log(accions);
+
   })
   .on('error', (err) => {
     console.error('Error reading the accions file:' + err);
