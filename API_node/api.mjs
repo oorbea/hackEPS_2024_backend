@@ -18,7 +18,9 @@ app.get('/', (req, res) => {
 async function getRecommendations (title) {
   try {
     const response = await axios.get(`${API_IA}/${title}`);
-    if (response.data.vigent) return response.data;
+    for (let i = 0; i < response.data.length; ++i) {
+      if (response.data[i].vigent) return response.data;
+    }
     return await getRecommendations(response.data.title);
   } catch (error) {
     throw new Error('Error fetching recommendations: ' + error.message);
