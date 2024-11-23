@@ -1,7 +1,12 @@
 import express from 'express';
 import axios from 'axios';
+import csv from 'csv-parser';
+import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config();
+
+const accionsPath = './DB/accions.csv';
+const tramitsPath = './DB/tramits.csv';
 
 const app = express();
 
