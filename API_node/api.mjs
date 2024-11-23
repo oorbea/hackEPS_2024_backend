@@ -33,14 +33,6 @@ fs.createReadStream(tramitsPath)
     console.error('Error reading the file:' + err);
   });
 
-// fs.createReadStream(accionsPath)
-//   .pipe(csv())
-//   .on('data', (row) => {
-//     accioColumns.forEach((column) => {
-//       if (row[column] === )
-//     })
-//   });
-
 const app = express();
 
 app.disable('x-powered-by');
