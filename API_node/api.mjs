@@ -5,8 +5,30 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const accionsPath = './DB/accions.csv';
+// const accionsPath = './DB/accions.csv';
 const tramitsPath = './DB/tramits.csv';
+
+const tramitColumns = ['Titol', 'Id', 'Vigent'];
+
+const tramits = {};
+
+fs.createReadStream(tramitsPath)
+  .pipe(csv())
+  .on('data', (row) => {
+    tramitColumns.forEach((column) => {
+      if (row[column] !== undefined) {
+        if (row[column] === 'True') tramits[column] = true;
+        else if (row[column] === 'False') tramits[column] = false;
+        else tramits[column] = row[column];
+      }
+    });
+  })
+  .on('end', () => {
+    console.log('CSV file read.');
+  })
+  .on('error', (err) => {
+    console.error('Error reading the file:' + err);
+  });
 
 const app = express();
 
