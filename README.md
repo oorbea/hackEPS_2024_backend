@@ -1,7 +1,7 @@
 # hackEPS_2024_backend
 ## Com aixecar l'API
 
-Per aixecar l'API, segueix els següents passos:
+Per aixecar l'API, segueix els següents passos (contant que ja has instal·lat Node.js i npm prèviament):
 
 1. Clona el repositori:
     ```bash
@@ -10,7 +10,6 @@ Per aixecar l'API, segueix els següents passos:
 
 2. Entra al directori del projecte:
     ```bash
-    cd hackEPS_2024_backend
     cd API_node
     ```
 
