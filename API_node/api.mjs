@@ -33,6 +33,26 @@ fs.createReadStream(tramitsPath)
     console.error('Error reading the file:' + err);
   });
 
+const accions = new Map();
+
+fs.createReadStream(accionsPath)
+  .pipe(csv())
+  .on('data', (row) => {
+    const accio = {};
+    accioColumns.forEach((column) => {
+      if (row[column] !== undefined) {
+        accio[column] = row[column];
+      }
+    });
+    accions.set(row.Tramit, accio);
+  })
+  .on('end', () => {
+    console.log('Accions CSV file read.');
+  })
+  .on('error', (err) => {
+    console.error('Error reading the accions file:' + err);
+  });
+
 const app = express();
 
 app.disable('x-powered-by');
@@ -78,45 +98,25 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${BASE_URL}`);
 });
 
-const accions = new Map();
-
-fs.createReadStream(accionsPath)
-  .pipe(csv())
-  .on('data', (row) => {
-    const accio = {};
-    accioColumns.forEach((column) => {
-      if (row[column] !== undefined) {
-        accio[column] = row[column];
-      }
-    });
-    accions.set(row.Tramit, accio);
-  })
-  .on('end', () => {
-    console.log('Accions CSV file read.');
-  })
-  .on('error', (err) => {
-    console.error('Error reading the accions file:' + err);
-  });
-
-app.get('/recommendations/*', async (req, res) => {
-  const title = req.url.split('/')[2];
-  const tramit = tramits.get(title);
-  if (!tramit) {
-    return res.status(404).json({ error: 'Tramit not found' });
-  }
-  const accio = accions.get(tramit.Id);
-  if (!accio) {
-    return res.status(404).json({ error: 'Accio not found' });
-  }
-  const requestData = {
-    Titol: tramit.Titol,
-    Sessio: accio.Sessio
-  };
-  try {
-    console.log(requestData);
-    const recommendations = await getRecommendations(requestData);
-    res.json(recommendations);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get('/recommendations/*', async (req, res) => {
+//   const title = req.url.split('/')[2];
+//   const tramit = tramits.get(title);
+//   if (!tramit) {
+//     return res.status(404).json({ error: 'Tramit not found' });
+//   }
+//   const accio = accions.get(tramit.Id);
+//   if (!accio) {
+//     return res.status(404).json({ error: 'Accio not found' });
+//   }
+//   const requestData = {
+//     Titol: tramit.Titol,
+//     Sessio: accio.Sessio
+//   };
+//   try {
+//     console.log(requestData);
+//     const recommendations = await getRecommendations(requestData);
+//     res.json(recommendations);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
