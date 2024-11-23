@@ -93,7 +93,6 @@ fs.createReadStream(accionsPath)
   })
   .on('end', () => {
     console.log('Accions CSV file read.');
-    console.log(accions);
   })
   .on('error', (err) => {
     console.error('Error reading the accions file:' + err);
