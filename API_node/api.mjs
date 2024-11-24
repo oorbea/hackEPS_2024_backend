@@ -12,6 +12,12 @@ const tramitsPath = './DB/tramits.csv';
 const tramitColumns = ['Titol', 'Id', 'Vigent'];
 const accioColumns = ['Tramit', 'Sessio'];
 
+const app = express();
+
+app.disable('x-powered-by');
+
+app.use(cors());
+
 const tramits = new Map();
 
 // Read tramits.csv and store the data in a Map
@@ -56,11 +62,44 @@ fs.createReadStream(accionsPath)
     console.error('Error reading the accions file:' + err);
   });
 
-const app = express();
+app.use(express.json());
 
-app.disable('x-powered-by');
+// Cohere API configuration
+const COHERE_API_KEY = process.env.COHERE_API_KEY;
+const COHERE_BASE_URL = 'https://api.cohere.ai';
 
-app.use(cors());
+app.post('/generate-description', async (req, res) => {
+  const prompt = 'Genera una descripció del següent tràmit que podria fer una persona: ' + req.body.Titol;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'El campo "prompt" es obligatorio.' });
+  }
+
+  try {
+    // Realizar la solicitud a la API de Cohere
+    const response = await axios.post(
+        `${COHERE_BASE_URL}/generate`,
+        {
+          model: 'command-xlarge-nightly', // Modelo, ajusta según tus necesidades
+          prompt,
+          max_tokens: 100, // Valor predeterminado si no se especifica
+          temperature: 0.7
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${COHERE_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+    );
+
+    // Devolver la respuesta al cliente
+    res.json(response.data.text);
+  } catch (error) {
+    console.error('Error al consumir la API de Cohere:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Error while processing the prompt' });
+  }
+});
 
 const PORT = process.env.PORT ?? 3000;
 const BASE_URL = `http://localhost:${PORT}`;
@@ -91,7 +130,19 @@ async function getRecommendations (id) {
   try {
     const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
     for (let i = 0; i < response.data.length; ++i) {
-      if (response.data[i].Vigent) return response.data.slice(0, 2);
+      if (response.data[i].Vigent) {
+        const recomm = response.data.slice(0, 2);
+        recomm.forEach(async r => {
+          r.Descripcio = await
+          axios.post(`${BASE_URL}/generate-description`, { Titol: r.Titol })
+            .then(response => response.data)
+            .catch(error => {
+              console.error('Error generating description:', error.response?.data || error.message);
+              return 'No description available';
+            });
+        });
+        return recomm;
+      }
     }
     return await getRecommendations(response.data[response.data.length - 1].id);
   } catch (error) {
