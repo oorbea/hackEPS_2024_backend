@@ -3,6 +3,7 @@ import axios from 'axios';
 import csv from 'csv-parser';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config();
 
 const accionsPath = './DB/accions.csv';
@@ -58,6 +59,8 @@ fs.createReadStream(accionsPath)
 const app = express();
 
 app.disable('x-powered-by');
+
+app.use(cors());
 
 const PORT = process.env.PORT ?? 3000;
 const BASE_URL = `http://localhost:${PORT}`;
