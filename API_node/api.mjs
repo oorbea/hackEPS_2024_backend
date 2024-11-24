@@ -124,8 +124,8 @@ app.get('/', (req, res) => {
 async function getRecommendations (id) {
   const sessio = accions.get(id).Sessio;
   const tramit = accions.get(id).Tramit;
-  const encodedSessio = encodeURIComponent(sessio);
-  const encodedTramit = encodeURIComponent(tramit);
+  const encodedSessio = sessio.replace(/ /g, '%20').replace(/\//g, '%2F');
+  const encodedTramit = tramit.replace(/ /g, '%20').replace(/\//g, '%2F');
 
   try {
     const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);

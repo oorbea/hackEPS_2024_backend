@@ -22,6 +22,7 @@ except FileNotFoundError:
 
 @app.route('/predict/<current_session>/<current_tramite>', methods=['GET'])
 def recommendation(current_session, current_tramite):
+    current_tramite = current_tramite.replace("%2F", "/")
     """
     Genera recomendaciones basadas en el trámite actual.
     """
@@ -39,7 +40,7 @@ def recommendation(current_session, current_tramite):
             for rec in recommendations if rec != current_tramite
         ]
 
-        return jsonify(filtered_recommendations)
+        return jsonify({filtered_recommendations})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
