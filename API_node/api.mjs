@@ -80,10 +80,10 @@ app.get('/', (req, res) => {
  * @throws {Error} - Throws an error if the request to the external API fails.
  */
 async function getRecommendations (id) {
-  const tramit = accions.get(id).Tramit;
   const sessio = accions.get(id).Sessio;
-  const encodedTramit = encodeURIComponent(tramit);
+  const tramit = accions.get(id).Tramit;
   const encodedSessio = encodeURIComponent(sessio);
+  const encodedTramit = encodeURIComponent(tramit);
 
   try {
     const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
