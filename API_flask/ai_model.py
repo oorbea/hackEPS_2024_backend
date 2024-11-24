@@ -6,7 +6,7 @@ import joblib  # Para guardar y cargar el modelo KNN
 import pickle  # Para guardar y cargar el LabelEncoder
 
 class AIModel:
-    def __init__(self, tramits_file, accions_file, sample_fraction=0.1, batch_size=200000):
+    def __init__(self, tramits_file, accions_file, sample_fraction=0.1, batch_size=500000):
         self.tramits_file = tramits_file  # Ruta tramits
         self.accions_file = accions_file  # Ruta acciones
         self.sample_fraction = sample_fraction
