@@ -10,7 +10,7 @@ const accionsPath = './DB/accions.csv';
 const tramitsPath = './DB/tramits.csv';
 
 const tramitColumns = ['Titol', 'Id', 'Vigent'];
-const accioColumns = ['Tramit', 'Sessio'];
+const accioColumns = ['Tramit', 'Sessio', 'Accio'];
 
 const app = express();
 
@@ -124,11 +124,13 @@ app.get('/', (req, res) => {
 async function getRecommendations (id) {
   const sessio = accions.get(id).Sessio;
   const tramit = accions.get(id).Tramit;
+  const ac = accions.get(id).Accio;
   const encodedSessio = sessio.replace(/ /g, '%20').replace(/\//g, '%2F');
   const encodedTramit = tramit.replace(/ /g, '%20').replace(/\//g, '%2F');
+  const encodedAction = ac.replace(/ /g, '%20').replace(/\//g, '%2F');
 
   try {
-    const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
+    const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}/${encodedAction}`);
     const result = [];
     for (let i = 0; i < response.data.length; ++i) {
       if (response.data[i].Vigent) {
