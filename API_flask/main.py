@@ -34,28 +34,28 @@ def recommendation(current_session, current_tramite):
     """
     Genera recomendaciones basadas en el trámite actual.
     """
-    # try:
-        # Obtener recomendaciones
-    example_first = onehot.transform([[current_tramite]]).toarray()
-    input_ = np.zeros_like(all_tramits[0])
-    input_[:774 // 2] = example_first[0][:774 // 2]
-    input_[774 // 2:] = 0
-    output_ = nn.kneighbors(input_[np.newaxis])[1]
-    _, tramits_idx = np.where(all_tramits[output_][0, :, 387:] ==1)
-    possible_tramits = list(onehot.categories_[0][tramits_idx])
-    possible_tramits = list(filter(lambda x: x != current_tramite, possible_tramits))
-    filtered_recommendations = [
-        {
-            "Id": rec,
-            "Titol": tramits_dict.get(rec, {}).get('Titol', "Unknown"),
-            "Vigent": tramits_dict.get(rec, {}).get('Vigent', "Unknown")
-        }
-        for rec in possible_tramits #if rec != current_tramite
-    ]
+    try:
+            # Obtener recomendaciones
+        example_first = onehot.transform([[current_tramite]]).toarray()
+        input_ = np.zeros_like(all_tramits[0])
+        input_[:774 // 2] = example_first[0][:774 // 2]
+        input_[774 // 2:] = 0
+        output_ = nn.kneighbors(input_[np.newaxis])[1]
+        _, tramits_idx = np.where(all_tramits[output_][0, :, 387:] ==1)
+        possible_tramits = list(onehot.categories_[0][tramits_idx])
+        possible_tramits = list(filter(lambda x: x != current_tramite, possible_tramits))
+        filtered_recommendations = [
+            {
+                "Id": rec,
+                "Titol": tramits_dict.get(rec, {}).get('Titol', "Unknown"),
+                "Vigent": tramits_dict.get(rec, {}).get('Vigent', "Unknown")
+            }
+            for rec in possible_tramits #if rec != current_tramite
+        ]
 
-    return jsonify(filtered_recommendations)
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 500
+        return jsonify(filtered_recommendations)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/status', methods=['GET'])
 def status():
