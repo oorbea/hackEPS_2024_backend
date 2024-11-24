@@ -8,8 +8,8 @@ import numpy as np
 app = Flask(__name__)
 
 # Inicializar el modelo AI
-tramits_file = '../data/tramits.csv'
-accions_file = '../data/accionsPreprocesadas1.csv'
+tramits_file = 'data/tramits.csv'
+accions_file = 'data/accionsPreprocesadas1.csv'
 
 
 # Inicializa el modelo
