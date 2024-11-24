@@ -6,12 +6,20 @@ from ai_model import AIModel
 app = Flask(__name__)
 
 # Inicializar el modelo AI
-tramits_file = './data/tramits.csv'
-accions_file = './data/accionsPreprocesadas1.csv'
+tramits_file = '../data/tramits.csv'
+accions_file = '../data/accionsPreprocesadas1.csv'
 
-ai_model = AIModel(tramits_file, accions_file)
-ai_model.load_and_preprocess_data()
-ai_model.train_model()
+
+# Inicializa el modelo
+model = AIModel(tramits_file='tramits.csv', accions_file='accions.csv')
+
+# Cargar el modelo guardado
+model.load_model(knn_path='../modelos/knn_model.joblib', encoder_path='../modelos/label_encoder.pkl')
+
+# Hacer predicciones
+
+
+
 
 # Cargar datos de tramits para detalles
 try:
@@ -20,12 +28,12 @@ try:
 except FileNotFoundError:
     raise FileNotFoundError(f"El archivo {tramits_file} no existe.")
 
-@app.route('/predict/<current_session>/<current_tramite>', methods=['GET'])
+@app.route('/predict/<string:current_session>/<string:current_tramite>', methods=['GET'])
 def recommendation(current_session, current_tramite):
-    current_tramite = current_tramite.replace("%2f", "/")
+    current_tramite = current_tramite.replace("/", "%2f")
     try:
         # Obtener recomendaciones
-        recommendations = ai_model.predict_tramites(current_tramite)
+        recommendations = model.predict_tramites(current_tramite= current_tramite, n_recommendations=5)
 
         # Filtrar el trámite actual y mapear detalles
         filtered_recommendations = [
