@@ -69,7 +69,7 @@ const COHERE_API_KEY = process.env.COHERE_API_KEY;
 const COHERE_BASE_URL = 'https://api.cohere.ai';
 
 app.post('/generate-description', async (req, res) => {
-  const prompt = 'Genera una descripció del següent tràmit que podria fer una persona: ' + req.body.Titol;
+  const prompt = 'Genera una sinopsis de menys de 20 paraules del següent tràmit que podria fer una persona: ' + req.body.Titol;
 
   if (!prompt) {
     return res.status(400).json({ error: 'El campo "prompt" es obligatorio.' });
@@ -129,21 +129,24 @@ async function getRecommendations (id) {
 
   try {
     const response = await axios.get(`${API_AI}/${encodedSessio}/${encodedTramit}`);
+    const result = [];
     for (let i = 0; i < response.data.length; ++i) {
       if (response.data[i].Vigent) {
-        const recomm = response.data.slice(0, 2);
-        recomm.forEach(async r => {
-          r.Descripcio = await
-          axios.post(`${BASE_URL}/generate-description`, { Titol: r.Titol })
-            .then(response => response.data)
-            .catch(error => {
-              console.error('Error generating description:', error.response?.data || error.message);
-              return 'No description available';
-            });
-        });
-        return recomm;
+        const recomm = response.data[i];
+        try {
+          const descriptionResponse = await axios.post(`${BASE_URL}/generate-description`, { Titol: recomm.Titol });
+          recomm.Descripcio = descriptionResponse.data;
+        } catch (err) {
+          throw new Error('Error fetching description: ' + err.message);
+        }
+        result.push(recomm);
       }
     }
+    if (result.length > 0) {
+      console.log('Returning recommendations:', result);
+      return result;
+    }
+    if (response.data.length === 0) throw new Error('No recommendations found');
     return await getRecommendations(response.data[response.data.length - 1].id);
   } catch (error) {
     throw new Error('Error fetching recommendations: ' + error.message);
