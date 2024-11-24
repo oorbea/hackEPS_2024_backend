@@ -30,7 +30,9 @@ except FileNotFoundError:
 
 @app.route('/predict/<string:current_session>/<string:current_tramite>', methods=['GET'])
 def recommendation(current_session, current_tramite):
-    current_tramite = current_tramite.replace("/", "%2f")
+    """
+    Genera recomendaciones basadas en el trámite actual.
+    """
     try:
         # Obtener recomendaciones
         recommendations = model.predict_tramites(current_tramite= current_tramite, n_recommendations=5)
