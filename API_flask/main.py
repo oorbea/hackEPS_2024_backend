@@ -1,17 +1,26 @@
 from flask import Flask, jsonify, request
 import pandas as pd
 from ai_model import AIModel
+import pickle
+import numpy as np
 
 # Inicializar Flask app
 app = Flask(__name__)
 
 # Inicializar el modelo AI
-tramits_file = './data/tramits.csv'
-accions_file = './data/accionsPreprocesadas1.csv'
+tramits_file = '../data/tramits.csv'
+accions_file = '../data/accionsPreprocesadas1.csv'
 
-ai_model = AIModel(tramits_file, accions_file)
-ai_model.load_and_preprocess_data()
-ai_model.train_model()
+
+# Inicializa el modelo
+
+
+with open("onehot.pkl", 'rb') as onehotfile:
+    onehot = pickle.load(onehotfile)
+with open("nearest.pkl", 'rb') as file_:
+    nn = pickle.load(file_)
+with open("all_tramits.pkl", 'rb') as file_:
+    all_tramits = pickle.load(file_)
 
 # Cargar datos de tramits para detalles
 try:
@@ -22,27 +31,31 @@ except FileNotFoundError:
 
 @app.route('/predict/<string:current_session>/<string:current_tramite>', methods=['GET'])
 def recommendation(current_session, current_tramite):
-    current_tramite = current_tramite.replace("%2F", "/")
     """
     Genera recomendaciones basadas en el trámite actual.
     """
-    try:
+    # try:
         # Obtener recomendaciones
-        recommendations = ai_model.predict_tramites(current_tramite)
+    example_first = onehot.transform([[current_tramite]]).toarray()
+    input_ = np.zeros_like(all_tramits[0])
+    input_[:774 // 2] = example_first[0][:774 // 2]
+    input_[774 // 2:] = 0
+    output_ = nn.kneighbors(input_[np.newaxis])[1]
+    _, tramits_idx = np.where(all_tramits[output_][0, :, 387:] ==1)
+    possible_tramits = list(onehot.categories_[0][tramits_idx])
+    possible_tramits = list(filter(lambda x: x != current_tramite, possible_tramits))
+    filtered_recommendations = [
+        {
+            "Id": rec,
+            "Titol": tramits_dict.get(rec, {}).get('Titol', "Unknown"),
+            "Vigent": tramits_dict.get(rec, {}).get('Vigent', "Unknown")
+        }
+        for rec in possible_tramits #if rec != current_tramite
+    ]
 
-        # Filtrar el trámite actual y mapear detalles
-        filtered_recommendations = [
-            {
-                "Id": rec,
-                "Titol": tramits_dict.get(rec, {}).get('Titol', "Unknown"),
-                "Vigent": tramits_dict.get(rec, {}).get('Vigent', "Unknown")
-            }
-            for rec in recommendations if rec != current_tramite
-        ]
-
-        return jsonify(filtered_recommendations)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify(filtered_recommendations)
+    # except Exception as e:
+    #     return jsonify({"error": str(e)}), 500
 
 @app.route('/status', methods=['GET'])
 def status():
