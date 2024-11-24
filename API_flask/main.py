@@ -22,9 +22,7 @@ except FileNotFoundError:
 
 @app.route('/predict/<current_session>/<current_tramite>', methods=['GET'])
 def recommendation(current_session, current_tramite):
-    """
-    Genera recomendaciones basadas en el trámite actual.
-    """
+    current_tramite = current_tramite.replace("%2f", "/")
     try:
         # Obtener recomendaciones
         recommendations = ai_model.predict_tramites(current_tramite)
